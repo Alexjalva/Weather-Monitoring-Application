@@ -24,3 +24,19 @@
 
      
  }
+ #cityRow{
+     font-size: x-large;
+     font-weight: 600;
+     padding-left: 20px;
+ }
+ .weatherText{
+     padding-left: 20px;
+ }
+
+ .weatherDay{
+     border-radius: 5px;
+     background-color: lightblue;
+     margin-right: 3.3%;
+     margin-top: 20px;
+     font-size: smaller;
+ }

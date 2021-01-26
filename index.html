@@ -38,22 +38,65 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-9" >
+            <div class="col-lg-9">
                 <div class="row ">
                     <div class="col-lg-12 displaySpace">
-                        weather display goes here  
+                        <div class="row" id="cityRow">
+                            City
+                        </div>
+                        <div class="row weatherText" id="tempRow">
+                            Temperature:
+                        </div>
+                        <div class="row weatherText" id="humRow">
+                            Humidity:
+                        </div>
+                        <div class="row weatherText" id="windRow">
+                            Wind Speed:
+                        </div>
+                        <div class="row weatherText" id="uvRow">
+                            UV Index:
+                            <span id="uvText"></span>
+                        </div>
                     </div>
-                   
+
                 </div>
-                <div class="row ">
-                    <div class="col-lg-12 displaySpace">
-                        5 day goes here
+                <div class="row" id="fiveDayRow">
+                    <div class="col-lg-2  weatherDay">
                     </div>
-                    
+                    <div class="col-lg-2  weatherDay">
+                    </div>
+                    <div class="col-lg-2  weatherDay">
+                    </div>
+                    <div class="col-lg-2  weatherDay">
+                    </div>
+                    <div class="col-lg-2  weatherDay">
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    let cityText = "London";
+    let queryURL = "https://api.openweathermap.org/data/2.5/weather?q="+cityText+"&appid=0708af15d2526a30fbb02cc58a5c486b";
+    
+    $(document).ready(function () {
+        
+        $.ajax({
+            url: queryURL,
+            method: "GET"
+        }).then(function (response){
+            console.log(response);
+
+        })
+    });
+        
+
+    </script>
+
 </body>
 
 </html>
