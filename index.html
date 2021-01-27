@@ -32,14 +32,14 @@
                 <div class="input-group" id="searchGrp">
                     <input type="text" class="form-control" placeholder="City to Search">
                     <div class="input-group-append">
-                        <button class="btn btn-secondary" type="button">
+                        <button class="btn btn-secondary" id="submitBtn" type="button">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
                 </div>
             </div>
             <div class="col-lg-9">
-                <div class="row ">
+                <div id="mainRow" class="row ">
                     <div class="col-lg-12 displaySpace">
                         <div class="row" id="cityRow">
                             City
@@ -61,39 +61,161 @@
 
                 </div>
                 <div class="row" id="fiveDayRow">
-                    <div class="col-lg-2  weatherDay">
-                    </div>
-                    <div class="col-lg-2  weatherDay">
-                    </div>
-                    <div class="col-lg-2  weatherDay">
-                    </div>
-                    <div class="col-lg-2  weatherDay">
-                    </div>
-                    <div class="col-lg-2  weatherDay">
-                    </div>
-
                 </div>
             </div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript">
-    let cityText = "London";
-    let queryURL = "https://api.openweathermap.org/data/2.5/weather?q="+cityText+"&appid=0708af15d2526a30fbb02cc58a5c486b";
-    
-    $(document).ready(function () {
-        
-        $.ajax({
-            url: queryURL,
-            method: "GET"
-        }).then(function (response){
-            console.log(response);
+        //Default to London if user has not made a previous search
+        let cityText = "London";
+        let latNum = 51.5085;
+        let lonNum = -0.1257;
 
+        function setCurrent(city) {
+            const newCitySrch = city.replace(" ", "%20");
+            let queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + newCitySrch + "&appid=0708af15d2526a30fbb02cc58a5c486b"
+            
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                //get lat and lon
+                latNum = response.coord.lat;
+                lonNum = response.coord.lon;
+                //get and determine temperature
+                let tempNum = response.main.temp;
+                tempNum = (tempNum * 9 / 5) - 459.67;
+                let tempStr = tempNum.toString();
+                tempStr = tempStr.substring(0, 5);
+                //get and determine humidity
+                let humNum = response.main.humidity;
+                //get and set wind speed
+                let windSpd = response.wind.speed;
+                //get weather icon and set it
+                let iconCode = response.weather[0].icon;
+                let iconURL = "http://openweathermap.org/img/w/" + iconCode + ".png";
+                let iconImg = $("<img>");
+                iconImg.attr("src",iconURL);
+                //get Date
+                let date = new Date(response.dt * 1000);
+                let dateStr = date.toLocaleString();
+                dateStr = dateStr.substring(0, 9);
+                $("#cityRow").text(city + "  (" + dateStr + ")");
+                $("#cityRow").append(iconImg);
+                $("#tempRow").text("Temperature: " + tempStr);
+                $("#humRow").text("Humidity: " + humNum + "%");
+                $("#windRow").text("Wind Speed: " + windSpd + " MPH")
+            
+            queryURL = "https://api.openweathermap.org/data/2.5/uvi?lat=" + latNum + "&lon=" + lonNum + "&appid=0708af15d2526a30fbb02cc58a5c486b";
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                //get UV index
+                let uvNum = response.value;
+                if(uvNum < 3){
+                    $("#uvText").attr("style","background-color:lightgreen");
+                }
+                else if(uvNum >3 && uvNum < 6){
+                    $("#uvText").attr("style","background-color:yellow");
+                }
+                else if(uvNum >5 && uvNum < 8){
+                    $("#uvText").attr("style","background-color:orange");
+                }
+                else if(uvNum >8 && uvNum < 10){
+                    $("#uvText").attr("style","background-color:red");
+                }
+                else if(uvNum >10){
+                    $("#uvText").attr("style","background-color:violet");
+                }
+                $("#uvText").text(" " + uvNum);
+            });
         })
-    });
-        
+        }
+        function setFiveDay(city) {
+            let queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=0708af15d2526a30fbb02cc58a5c486b"
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                const daysArray = response.list;
+                let dayBox = $("#fiveDayRow");
+                dayBox.empty();
+
+                for (let i = 7; i <= daysArray.length; i += 8) {
+                    //create a block
+                    let weatherBlock = $("<div>");
+                    weatherBlock.addClass("col-lg-2 weatherDay");
+                    //get Date
+                    let date = new Date(daysArray[i].dt * 1000);
+                    let dateStr = date.toLocaleString();
+                    dateStr = dateStr.substring(0, 9);
+                    //get Temp
+                    let dayTemp = daysArray[i].main.temp;
+                    dayTemp = (dayTemp * 9 / 5) - 459.67;
+                    let tempStr = dayTemp.toString();
+                    tempStr = tempStr.substring(0, 5);
+                    //get Humidity
+                    let dayHum = daysArray[i].main.humidity;
+                    //get weather Icon
+                    let iconCode = daysArray[i].weather[0].icon;
+                    let iconURL = "http://openweathermap.org/img/w/" + iconCode + ".png";
+                    //set date temp and humidity
+                    let dateP = $("<h4>");
+                    dateP.text(dateStr);
+                    let imgDay = $("<img>");
+                    imgDay.attr("src", iconURL);
+                    let tempP = $("<h6>");
+                    tempP.text("Temp: " + tempStr);
+                    let humP = $("<h6>");
+                    humP.text("Humidity: " + dayHum + "%");
+                    weatherBlock.append(dateP);
+                    weatherBlock.append(imgDay);
+                    weatherBlock.append(tempP);
+                    weatherBlock.append(humP);
+                    dayBox.append(weatherBlock);
+                }
+            })
+        }
+
+        $(document).ready(function () {
+            if (localStorage.getItem("lastSearch") != null) {
+                cityText = localStorage.getItem("lastSearch");
+            }
+            setCurrent(cityText);
+            setFiveDay(cityText);
+        });
+        $("#submitBtn").on("click", function () {
+            event.preventDefault();
+            const newCity = $(".form-control").val();
+
+            $(".form-control").val("");
+            setFiveDay(newCity);
+            setCurrent(newCity);
+            localStorage.setItem("lastSearch", newCity);
+            const cityRow = $("<div>");
+                cityRow.addClass("row");
+                cityRow.addClass("test");
+            const cityCol = $("<div>");
+                cityCol.addClass("col-lg-12");
+            const cityBtn = $("<button>");
+                cityBtn.addClass("searchedBtn");
+                cityBtn.text(newCity);
+            cityCol.append(cityBtn);
+            cityRow.append(cityCol);
+            $("#leftCol").append(cityRow);
+        })
+        $(document).on("click", ".searchedBtn", function(){
+            let repCity = $(this).children().prevObject[0].innerText;
+
+            setFiveDay(repCity);
+            setCurrent(repCity);
+            localStorage.setItem("lastSearch", repCity);
+        })
+
 
     </script>
 
