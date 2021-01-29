@@ -1,3 +1,4 @@
+/* formattiing for title bar */
 #titleBar{
     color: rgb(245, 239, 239);
     height: 100px;
@@ -6,13 +7,14 @@
     background-color: rgb(91, 92, 91);
     font-size: xx-large;
 }
-
+/* style code for left column that holds the search bar */
 #leftCol{
     border:solid white 15px;
     padding-bottom: 20px;
     background-color: rgb(197, 194, 194);
     
 }
+/* adding styling to the search items to make them fit well */
  #searchGrp{
      padding-top: 20px;
  }
@@ -23,7 +25,7 @@
     width: max-content;
     
 }
-
+/* space formatting code for the city weather display area */
  .displaySpace{
 
      border: solid grey;
@@ -37,6 +39,7 @@
      font-weight: 600;
      padding-left: 20px;
  }
+ /* space and style formatting for the 5 day forecast items */
  .weatherText{
      padding-left: 20px;
  }
