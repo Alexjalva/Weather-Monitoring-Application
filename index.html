@@ -66,8 +66,6 @@
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript">
         //Default to London if user has not made a previous search
         let cityText = "London";
@@ -77,7 +75,7 @@
         function setCurrent(city) {
             const newCitySrch = city.replace(" ", "%20");
             let queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + newCitySrch + "&appid=0708af15d2526a30fbb02cc58a5c486b"
-            
+            //Ajax query that checks for weather at that moment
             $.ajax({
                 url: queryURL,
                 method: "GET"
@@ -103,6 +101,7 @@
                 let date = new Date(response.dt * 1000);
                 let dateStr = date.toLocaleString();
                 dateStr = dateStr.substring(0, 9);
+                //Sets the text in the html
                 $("#cityRow").text(city + "  (" + dateStr + ")");
                 $("#cityRow").append(iconImg);
                 $("#tempRow").text("Temperature: " + tempStr);
@@ -110,12 +109,14 @@
                 $("#windRow").text("Wind Speed: " + windSpd + " MPH")
             
             queryURL = "https://api.openweathermap.org/data/2.5/uvi?lat=" + latNum + "&lon=" + lonNum + "&appid=0708af15d2526a30fbb02cc58a5c486b";
+            //Ajax query that checks the UV index specifically. Nested inside the previous ajax query "then" so that it runs in order. 
             $.ajax({
                 url: queryURL,
                 method: "GET"
             }).then(function (response) {
                 //get UV index
                 let uvNum = response.value;
+                //if statements to decide the color of the UV display corresponding to the UV index
                 if(uvNum < 3){
                     $("#uvText").attr("style","background-color:lightgreen");
                 }
@@ -136,6 +137,7 @@
         })
         }
         function setFiveDay(city) {
+            //Ajax query that calls on the 5 day forecast api
             let queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=0708af15d2526a30fbb02cc58a5c486b"
             $.ajax({
                 url: queryURL,
@@ -172,30 +174,38 @@
                     tempP.text("Temp: " + tempStr);
                     let humP = $("<h6>");
                     humP.text("Humidity: " + dayHum + "%");
+                    //append all of the information into the block
                     weatherBlock.append(dateP);
                     weatherBlock.append(imgDay);
                     weatherBlock.append(tempP);
                     weatherBlock.append(humP);
+                    //append the block to the box itself
                     dayBox.append(weatherBlock);
                 }
             })
         }
 
         $(document).ready(function () {
+            //check to see if there was a last search, pull the city information if there was. 
             if (localStorage.getItem("lastSearch") != null) {
                 cityText = localStorage.getItem("lastSearch");
             }
+            //run the functions to set the initial information
             setCurrent(cityText);
             setFiveDay(cityText);
         });
+        //Fill in information if the user makes a search for a new city
         $("#submitBtn").on("click", function () {
             event.preventDefault();
             const newCity = $(".form-control").val();
 
             $(".form-control").val("");
+            // run the functions for the main bar and the five day forecast
             setFiveDay(newCity);
             setCurrent(newCity);
+            //save the last search item in local storage
             localStorage.setItem("lastSearch", newCity);
+            // build out the button for the last searched item
             const cityRow = $("<div>");
                 cityRow.addClass("row");
                 cityRow.addClass("test");
@@ -208,11 +218,14 @@
             cityRow.append(cityCol);
             $("#leftCol").append(cityRow);
         })
+        //click on the dynamically created buttons
         $(document).on("click", ".searchedBtn", function(){
+            //pulls city information from the button text
             let repCity = $(this).children().prevObject[0].innerText;
-
+            //runs the five day and current based ont he city information
             setFiveDay(repCity);
             setCurrent(repCity);
+            //sets the button as the last searched
             localStorage.setItem("lastSearch", repCity);
         })
 
